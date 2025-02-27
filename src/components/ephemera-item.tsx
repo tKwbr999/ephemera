@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { config } from '@/lib/config';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export interface CloudItem {
   id: string;
@@ -25,18 +24,20 @@ const CloudItem = ({ cloud, onInteract }: CloudItemProps) => {
   useEffect(() => {
     // Calculate opacity based on interest level
     setOpacity(0.3 + (cloud.interestLevel / 100) * 0.7);
-    
+
     // Calculate gradient based on interest level
     // As interest level decreases, the cloud becomes more white (fades away)
     const blackOpacity = cloud.interestLevel / 100;
-    
+
     // Use separate properties instead of shorthand to avoid React warnings
     setGradientStyle({
-      backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, ${blackOpacity}), rgba(255, 255, 255, ${1 - blackOpacity}))`,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      color: 'transparent' // Use color: transparent instead of textFillColor
+      backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, ${blackOpacity}), rgba(255, 255, 255, ${
+        1 - blackOpacity
+      }))`,
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      backgroundClip: "text",
+      color: "transparent", // Use color: transparent instead of textFillColor
     });
   }, [cloud.interestLevel]);
 
@@ -45,7 +46,7 @@ const CloudItem = ({ cloud, onInteract }: CloudItemProps) => {
   };
 
   return (
-    <Card 
+    <Card
       className={cn(
         "relative overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer",
         "border-abbey-300 dark:border-abbey-700 h-full"
@@ -63,7 +64,7 @@ const CloudItem = ({ cloud, onInteract }: CloudItemProps) => {
             Last interaction {formatDistanceToNow(cloud.lastInteraction)} ago
           </div>
         </div>
-        <p 
+        <p
           className="mb-4 text-lg font-medium text-abbey-900 dark:text-abbey-50 flex-grow"
           style={gradientStyle}
         >
@@ -71,8 +72,12 @@ const CloudItem = ({ cloud, onInteract }: CloudItemProps) => {
         </p>
         <div className="mt-4 w-full">
           <div className="mb-1 flex items-center justify-between">
-            <span className="text-xs text-abbey-500 dark:text-abbey-400">Interest Level</span>
-            <span className="text-xs font-medium text-abbey-700 dark:text-abbey-300">{cloud.interestLevel}%</span>
+            <span className="text-xs text-abbey-500 dark:text-abbey-400">
+              Interest Level
+            </span>
+            <span className="text-xs font-medium text-abbey-700 dark:text-abbey-300">
+              {cloud.interestLevel}%
+            </span>
           </div>
           <Progress value={cloud.interestLevel} className="h-1" />
         </div>
@@ -83,4 +88,4 @@ const CloudItem = ({ cloud, onInteract }: CloudItemProps) => {
 
 export default CloudItem;
 
-export { CloudItem }
+export { CloudItem };

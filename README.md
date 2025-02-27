@@ -7,7 +7,7 @@ A beautiful application for storing and managing your ideas as clouds that fade 
 - User authentication with email/password and Google login
 - Create and manage idea "clouds"
 - Clouds fade over time if not interacted with
-- Archived clouds section for ideas that have completely faded
+- Buried clouds section for ideas that have completely faded
 - Beautiful UI with visual representation of idea "freshness"
 - QR code sharing for easy access on multiple devices
 

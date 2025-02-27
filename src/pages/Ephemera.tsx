@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AppNavigation from "@/components/app-navigation";
-import CloudItem, { CloudItem as CloudItemType } from "@/components/cloud-item";
+import CloudItem, {
+  CloudItem as CloudItemType,
+} from "@/components/ephemera-item";
 import CreateCloudDialog from "@/components/create-cloud-dialog";
 import { useUser } from "@/contexts/user-context";
 import { config } from "@/lib/config";
@@ -119,9 +121,9 @@ const Ephemera = () => {
         return cloud;
       });
 
-      // Get archived clouds
+      // Get buried clouds
       const storedClouds = localStorage.getItem(`clouds-${user?.id}`);
-      let archivedClouds: CloudItemType[] = [];
+      let buriedClouds: CloudItemType[] = [];
       if (storedClouds) {
         const parsedClouds = JSON.parse(storedClouds).map(
           (cloud: CloudItemType) => ({
@@ -130,7 +132,7 @@ const Ephemera = () => {
             lastInteraction: new Date(cloud.lastInteraction),
           })
         );
-        archivedClouds = parsedClouds.filter(
+        buriedClouds = parsedClouds.filter(
           (cloud: CloudItemType) => cloud.interestLevel <= 0
         );
       }
@@ -138,7 +140,7 @@ const Ephemera = () => {
       // Save all clouds to localStorage
       localStorage.setItem(
         `clouds-${user?.id}`,
-        JSON.stringify([...updatedClouds, ...archivedClouds])
+        JSON.stringify([...updatedClouds, ...buriedClouds])
       );
 
       return updatedClouds;

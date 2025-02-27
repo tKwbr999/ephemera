@@ -6,7 +6,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Ephemera from "@/pages/Ephemera";
-import ArchivedClouds from "@/pages/ArchivedClouds";
+import Buried from "@/pages/Buried";
 import ProtectedRoute from "@/components/protected-route";
 import { UserProvider } from "@/contexts/user-context";
 
@@ -59,10 +59,10 @@ function App() {
               }
             />
             <Route
-              path="/archived"
+              path="/buried"
               element={
                 <ProtectedRoute>
-                  <ArchivedClouds />
+                  <Buried />
                 </ProtectedRoute>
               }
             />

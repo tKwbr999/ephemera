@@ -57,8 +57,15 @@ const Register = () => {
         description: "Your account has been created.",
       });
       navigate("/ephemera");
-    } catch (error) {
-      // Error is handled in the register function
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during registration.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -79,8 +86,15 @@ const Register = () => {
     try {
       await loginWithGoogle();
       // No need for toast or navigation here as it will redirect to Google
-    } catch (error) {
-      // Error is handled in the loginWithGoogle function
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during Google login.",
+        variant: "destructive",
+      });
     } finally {
       setIsGoogleLoading(false);
     }

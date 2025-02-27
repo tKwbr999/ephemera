@@ -32,7 +32,7 @@ const AppNavigation = () => {
     },
     {
       name: "buried",
-      path: "/archived",
+      path: "/buried",
       icon: <CloudOff className="h-5 w-5" />,
     },
   ];
