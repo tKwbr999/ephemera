@@ -21,7 +21,7 @@ A beautiful application for storing and managing your ideas as clouds that fade 
    - The necessary environment variables will be automatically added to your project
 
 4. Configure Google OAuth in Supabase:
-   - Go to your Supabase dashboard
+   - Go to your Supabase ephemera
    - Navigate to Authentication > Providers
    - Enable Google provider
    - Create a Google OAuth client ID and secret in the Google Cloud Console

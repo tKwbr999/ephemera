@@ -64,7 +64,7 @@ const Login = () => {
         title: "Success",
         description: "You have successfully logged in.",
       });
-      navigate("/dashboard");
+      navigate("/ephemera");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -102,7 +102,7 @@ const Login = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       {import.meta.env.VITE_DEBUG && (
-        <div className="fixed top-4 right-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md shadow-md">
+        <div className="absolute top-4 right-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md shadow-md">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Debug Mode
           </h1>
@@ -110,10 +110,10 @@ const Login = () => {
             Login skipped
           </p>
           <Link
-            to="/dashboard"
+            to="/ephemera"
             className="text-blue-500 hover:underline mt-2 block"
           >
-            Go to Dashboard
+            Go to Ephemera
           </Link>
         </div>
       )}

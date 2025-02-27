@@ -1,21 +1,27 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle } from 'lucide-react';
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { PlusCircle } from "lucide-react";
 
 interface CreateCloudDialogProps {
   onCreateCloud: (content: string) => void;
 }
 
 const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = () => {
     if (content.trim()) {
       onCreateCloud(content);
-      setContent('');
+      setContent("");
       setOpen(false);
     }
   };
@@ -38,8 +44,8 @@ const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={!content.trim()}
             className="bg-abbey-800 hover:bg-abbey-900 text-white w-full"
           >
