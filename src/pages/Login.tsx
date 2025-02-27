@@ -100,7 +100,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-white p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       {import.meta.env.VITE_DEBUG && (
         <div className="fixed top-4 right-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md shadow-md">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
