@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useUser } from "@/contexts/user-context";
-import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -14,123 +11,49 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Cloud } from "lucide-react";
+import DebugModeDisplay from "@/components/DebugModeDisplay";
+import { useLogin } from "@/hooks/use-login";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 import { Separator } from "@/components/ui/separator-trisect";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const { login, loginWithGoogle, isAuthenticated, debugLogin } = useUser();
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isLoading,
+    isGoogleLoading,
+    loginError,
+    handleSubmit,
+    handleGoogleLogin,
+    handleDebugLogin,
+  } = useLogin();
 
   // Check if debug mode is enabled
   const isDebugMode = import.meta.env.VITE_DEBUG === "true";
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if Supabase is configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    setIsSupabaseConfigured((!!supabaseUrl && !!supabaseKey) || isDebugMode);
-  }, [isDebugMode]);
-
-  // Add effect to redirect when authentication state changes
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/alive");
-    }
-  }, [isAuthenticated, navigate]);
-
-  // Clear error when email or password changes
-  useEffect(() => {
-    if (loginError) {
-      setLoginError(null);
-    }
-  }, [email, password]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isSupabaseConfigured && !isDebugMode) {
+    if (!isDebugMode && (!supabaseUrl || !supabaseKey)) {
       toast({
-        title: "Authentication unavailable",
+        title: "Supabase not configured",
         description:
-          "Please connect to Supabase from the StackBlitz interface first.",
+          "Please connect to Supabase from the StackBlitz interface to enable authentication.",
         variant: "destructive",
+        duration: 6000,
       });
-      return;
     }
-
-    setIsLoading(true);
-    setLoginError(null);
-
-    try {
-      await login(email, password);
-      toast({
-        title: "Success",
-        description: "You have successfully logged in.",
-      });
-      // Redirect will be handled by the useEffect
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "An error occurred during login";
-      setLoginError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    if (!isSupabaseConfigured && !isDebugMode) {
-      toast({
-        title: "Authentication unavailable",
-        description:
-          "Please connect to Supabase from the StackBlitz interface first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsGoogleLoading(true);
-    try {
-      await loginWithGoogle();
-      // Redirect will be handled by Google or useEffect
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
-
-  const handleDebugLogin = () => {
-    debugLogin();
-    // Redirect will be handled by the useEffect
-  };
+  }, [isDebugMode, toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      {isDebugMode && (
-        <div className="absolute top-4 right-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md shadow-md">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Debug Mode
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Login required
-          </p>
-          <Button
-            onClick={handleDebugLogin}
-            className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white"
-          >
-            Use Debug Login
-          </Button>
-        </div>
-      )}
+      {isDebugMode && <DebugModeDisplay handleDebugLogin={handleDebugLogin} />}
       <Card className="w-full max-w-md border-abbey-200 dark:border-abbey-700 mx-auto text-center rounded-xl">
         <CardHeader className="space-y-3 flex flex-col items-center">
           <div className="flex justify-center">
@@ -142,28 +65,12 @@ const Login = () => {
           <CardDescription className="text-abbey-500 dark:text-abbey-500 max-w-xs mx-auto">
             Sign in to access your ephemera ideas
           </CardDescription>
-          {!isSupabaseConfigured && !isDebugMode && (
-            <div className="mt-2 text-sm text-red-500 bg-red-50 p-2 rounded-md">
-              Please connect to Supabase from the StackBlitz interface to enable
-              authentication.
-            </div>
-          )}
-          {isDebugMode && (
-            <div className="mt-2 text-sm text-green-500 bg-green-50 p-2 rounded-md">
-              Debug mode active. You can use any credentials or the debug login
-              button.
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4 w-full px-6">
           <Button
             type="button"
             variant="outline"
             className="w-full bg-abbey-900 hover:bg-abbey-800 text-white border-abbey-900 flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
-            disabled={
-              isGoogleLoading || (!isSupabaseConfigured && !isDebugMode)
-            }
+            disabled={isLoading}
           >
             {isGoogleLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-abbey-400 border-t-transparent"></div>
@@ -196,15 +103,13 @@ const Login = () => {
             )}
             <span>Continue with Google</span>
           </Button>
-
-          <div className="flex items-center gap-2 py-2">
-            <Separator className="flex-grow bg-abbey-200 dark:bg-abbey-700" />
-            <span className="text-xs text-abbey-500 dark:text-abbey-500">
-              OR
-            </span>
-            <Separator className="flex-grow bg-abbey-200 dark:bg-abbey-700" />
-          </div>
-
+        </CardHeader>
+        <div className="flex items-center gap-2 py-2 justify-center">
+          <Separator />
+          <span className="text-abbey-500 dark:text-abbey-500">OR</span>{" "}
+          <Separator />
+        </div>
+        <CardContent className="space-y-4 w-full px-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {loginError && (
               <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md text-left">
@@ -253,7 +158,6 @@ const Login = () => {
             <Button
               type="submit"
               className="w-full bg-abbey-900 hover:bg-abbey-800 text-white"
-              disabled={isLoading || (!isSupabaseConfigured && !isDebugMode)}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
@@ -269,7 +173,10 @@ const Login = () => {
         <CardFooter className="flex flex-col space-y-4 px-6 pb-6">
           <div className="text-center text-sm text-abbey-600 dark:text-abbey-600">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-500 hover:underline">
+            <Link
+              to="/register"
+              className="text-abbey-800 dark:text-abbey-800 hover:underline"
+            >
               Sign up
             </Link>
           </div>
