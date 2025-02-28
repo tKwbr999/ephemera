@@ -6,6 +6,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Ephemera from "@/pages/Ephemera";
+import Realized from "@/pages/Realized";
 import Buried from "@/pages/Buried";
 import ProtectedRoute from "@/components/protected-route";
 import { UserProvider } from "@/contexts/user-context";
@@ -46,10 +47,18 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="ephemera-ideas-theme">
       <UserProvider>
-        <div className="min-h-screen w-full bg-white max-w-md mx-auto">
+        <div className="min-h-screen w-full bg-white">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route
+              path="/realized"
+              element={
+                <ProtectedRoute>
+                  <Realized />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/alive"
               element={

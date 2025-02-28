@@ -124,7 +124,7 @@ const Register = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full border-abbey-200 dark:border-abbey-700 text-abbey-800 hover:bg-abbey-50 flex items-center justify-center gap-2"
+            className="w-full bg-abbey-900 hover:bg-abbey-800 text-white border-abbey-900 flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || !isSupabaseConfigured}
           >
@@ -219,7 +219,7 @@ const Register = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-abbey-800 hover:bg-abbey-900 text-white"
+              className="w-full bg-abbey-900 hover:bg-abbey-800 text-white"
               disabled={isLoading || !isSupabaseConfigured}
             >
               {isLoading ? (

@@ -160,7 +160,7 @@ const Ephemera = () => {
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-abbey-950">
       <AppNavigation />
-      <div className="flex-1 flex flex-col items-center">
+      <div className="flex-1 flex flex-col items-center pt-16">
         <div className="w-full max-w-6xl px-4 sm:px-6">
           <div className="mb-6 text-center py-4">
             <h2 className="text-2xl font-bold text-abbey-900 dark:text-abbey-50">

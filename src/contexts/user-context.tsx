@@ -46,11 +46,18 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const { toast } = useToast();
 
+  // Check for VITE_DEBUG flag outside useEffect
+  const isDebugMode = import.meta.env.VITE_DEBUG === "true";
+
   useEffect(() => {
     // Get the initial session
-    // Check for VITE_DEBUG flag
-    if (import.meta.env.VITE_DEBUG) {
+    if (isDebugMode) {
       setIsAuthenticated(true);
+      setUser({
+        id: "debug-user",
+        email: "debug@example.com",
+        name: "Debug User",
+      });
     } else {
       supabase.auth
         .getSession()
@@ -91,6 +98,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         return () => {};
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setUserFromSupabaseUser = (supabaseUser: SupabaseUser) => {
