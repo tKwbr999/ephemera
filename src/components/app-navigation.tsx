@@ -27,7 +27,7 @@ const AppNavigation = () => {
   const navItems = [
     {
       name: "ephemera",
-      path: "/ephemera",
+      path: "/alive",
       icon: <Cloud className="h-5 w-5" />,
     },
     {
@@ -51,7 +51,7 @@ const AppNavigation = () => {
       <div className="flex items-center justify-between w-full max-w-6xl px-4 sm:px-6">
         <div className="flex items-center space-x-4">
           <h1 className="text-xl font-bold text-abbey-900 dark:text-abbey-50">
-            Cloud Ideas
+            Ephemera
           </h1>
           <nav className="flex items-center space-x-2">
             {navItems.map((item) => (

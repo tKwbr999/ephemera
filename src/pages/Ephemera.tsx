@@ -1,94 +1,96 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AppNavigation from "@/components/app-navigation";
-import CloudItem, {
-  CloudItem as CloudItemType,
+import EphemeraItem, {
+  EphemeraItem as EphemeraItemType,
 } from "@/components/ephemera-item";
-import CreateCloudDialog from "@/components/create-cloud-dialog";
+import CreateEphemeraDialog from "@/components/create-ephemera-dialog";
 import { useUser } from "@/contexts/user-context";
 import { config } from "@/lib/config";
 
 const Ephemera = () => {
   const { user } = useUser();
   const { toast } = useToast();
-  const [clouds, setClouds] = useState<CloudItemType[]>([]);
+  const [ephemeras, setEphemera] = useState<EphemeraItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // In a real app, this would fetch from an API
     // For demo purposes, we'll load from localStorage
-    const loadClouds = () => {
+    const loadEphemera = () => {
       try {
-        const storedClouds = localStorage.getItem(`clouds-${user?.id}`);
-        if (storedClouds) {
-          const parsedClouds = JSON.parse(storedClouds).map(
-            (cloud: CloudItemType) => ({
-              ...cloud,
-              createdAt: new Date(cloud.createdAt),
-              lastInteraction: new Date(cloud.lastInteraction),
+        const storedEphemera = localStorage.getItem(`ephemeras-${user?.id}`);
+        if (storedEphemera) {
+          const parsedEphemera = JSON.parse(storedEphemera).map(
+            (ephemera: EphemeraItemType) => ({
+              ...ephemera,
+              createdAt: new Date(ephemera.createdAt),
+              lastInteraction: new Date(ephemera.lastInteraction),
             })
           );
-          setClouds(
-            parsedClouds.filter(
-              (cloud: CloudItemType) => cloud.interestLevel > 0
+          setEphemera(
+            parsedEphemera.filter(
+              (ephemera: EphemeraItemType) => ephemera.interestLevel > 0
             )
           );
         }
       } catch (error) {
-        console.error("Failed to load clouds:", error);
+        console.error("Failed to load ephemeras:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadClouds();
+    loadEphemera();
 
     // Set up interval to decrease interest levels
     const interval = setInterval(() => {
-      setClouds((prevClouds) => {
+      setEphemera((prevEphemera) => {
         // Calculate decay rate based on configured lifetime in minutes
         // If lifetime is 43200 minutes (30 days), we want to decrease by 100% over that period
-        const totalDecayRate = 100 / config.cloudLifetimeMinutes;
+        const totalDecayRate = 100 / config.ephemeraLifetimeMinutes;
 
         // Convert to per-second rate (divide by seconds in a minute)
         const secondsInMinute = 60;
         const perSecondDecayRate = totalDecayRate / secondsInMinute;
 
-        const updatedClouds = prevClouds.map((cloud) => {
+        const updatedEphemera = prevEphemera.map((ephemera) => {
           // Decrease interest by the calculated rate per second
           const newInterestLevel = Math.max(
             0,
-            cloud.interestLevel - perSecondDecayRate
+            ephemera.interestLevel - perSecondDecayRate
           );
           return {
-            ...cloud,
+            ...ephemera,
             interestLevel: newInterestLevel,
           };
         });
 
-        // Filter out clouds with zero interest
-        const activeClouds = updatedClouds.filter(
-          (cloud) => cloud.interestLevel > 0
+        // Filter out ephemeras with zero interest
+        const activeEphemera = updatedEphemera.filter(
+          (ephemera) => ephemera.interestLevel > 0
         );
 
         // Save to localStorage
         localStorage.setItem(
-          `clouds-${user?.id}`,
+          `ephemeras-${user?.id}`,
           JSON.stringify([
-            ...activeClouds,
-            ...updatedClouds.filter((cloud) => cloud.interestLevel <= 0),
+            ...activeEphemera,
+            ...updatedEphemera.filter(
+              (ephemera) => ephemera.interestLevel <= 0
+            ),
           ])
         );
 
-        return activeClouds;
+        return activeEphemera;
       });
     }, 1000);
 
     return () => clearInterval(interval);
   }, [user?.id]);
 
-  const handleCreateCloud = (content: string) => {
-    const newCloud: CloudItemType = {
+  const handleCreateEphemera = (content: string) => {
+    const newEphemera: EphemeraItemType = {
       id: crypto.randomUUID(),
       content,
       createdAt: new Date(),
@@ -96,58 +98,61 @@ const Ephemera = () => {
       interestLevel: 100,
     };
 
-    setClouds((prevClouds) => {
-      const updatedClouds = [...prevClouds, newCloud];
-      localStorage.setItem(`clouds-${user?.id}`, JSON.stringify(updatedClouds));
-      return updatedClouds;
+    setEphemera((prevEphemera) => {
+      const updatedEphemera = [...prevEphemera, newEphemera];
+      localStorage.setItem(
+        `ephemeras-${user?.id}`,
+        JSON.stringify(updatedEphemera)
+      );
+      return updatedEphemera;
     });
 
     toast({
-      title: "Cloud created",
-      description: "Your idea has been added to your clouds.",
+      title: "Ephemera created",
+      description: "Your idea has been added to your ephemeras.",
     });
   };
 
   const handleInteract = (id: string) => {
-    setClouds((prevClouds) => {
-      const updatedClouds = prevClouds.map((cloud) => {
-        if (cloud.id === id) {
+    setEphemera((prevEphemera) => {
+      const updatedEphemera = prevEphemera.map((ephemera) => {
+        if (ephemera.id === id) {
           return {
-            ...cloud,
+            ...ephemera,
             interestLevel: 100,
             lastInteraction: new Date(),
           };
         }
-        return cloud;
+        return ephemera;
       });
 
-      // Get buried clouds
-      const storedClouds = localStorage.getItem(`clouds-${user?.id}`);
-      let buriedClouds: CloudItemType[] = [];
-      if (storedClouds) {
-        const parsedClouds = JSON.parse(storedClouds).map(
-          (cloud: CloudItemType) => ({
-            ...cloud,
-            createdAt: new Date(cloud.createdAt),
-            lastInteraction: new Date(cloud.lastInteraction),
+      // Get buried ephemeras
+      const storedEphemera = localStorage.getItem(`ephemeras-${user?.id}`);
+      let buriedEphemera: EphemeraItemType[] = [];
+      if (storedEphemera) {
+        const parsedEphemera = JSON.parse(storedEphemera).map(
+          (ephemera: EphemeraItemType) => ({
+            ...ephemera,
+            createdAt: new Date(ephemera.createdAt),
+            lastInteraction: new Date(ephemera.lastInteraction),
           })
         );
-        buriedClouds = parsedClouds.filter(
-          (cloud: CloudItemType) => cloud.interestLevel <= 0
+        buriedEphemera = parsedEphemera.filter(
+          (ephemera: EphemeraItemType) => ephemera.interestLevel <= 0
         );
       }
 
-      // Save all clouds to localStorage
+      // Save all ephemeras to localStorage
       localStorage.setItem(
-        `clouds-${user?.id}`,
-        JSON.stringify([...updatedClouds, ...buriedClouds])
+        `ephemeras-${user?.id}`,
+        JSON.stringify([...updatedEphemera, ...buriedEphemera])
       );
 
-      return updatedClouds;
+      return updatedEphemera;
     });
 
     toast({
-      title: "Cloud refreshed",
+      title: "Ephemera refreshed",
       description: "Your interest in this idea has been renewed.",
     });
   };
@@ -159,39 +164,39 @@ const Ephemera = () => {
         <div className="w-full max-w-6xl px-4 sm:px-6">
           <div className="mb-6 text-center py-4">
             <h2 className="text-2xl font-bold text-abbey-900 dark:text-abbey-50">
-              My Idea Clouds
+              Alive
             </h2>
             <p className="text-abbey-500 dark:text-abbey-400">
-              Your private space for ideas. Tap clouds to keep them alive.
+              Your private space for ideas. Tap ephemeras to keep them alive.
             </p>
             <p className="text-sm text-abbey-400 dark:text-abbey-500 mt-1">
-              Cloud lifetime: {config.cloudLifetimeDisplay}{" "}
+              Ephemera lifetime: {config.ephemeraLifetimeDisplay}{" "}
               {config.devMode && "(Dev Mode)"}
             </p>
           </div>
 
-          <CreateCloudDialog onCreateCloud={handleCreateCloud} />
+          <CreateEphemeraDialog onCreateEphemera={handleCreateEphemera} />
 
           {isLoading ? (
             <div className="flex h-40 items-center justify-center w-full">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-abbey-300 border-t-transparent dark:border-abbey-600 dark:border-t-transparent"></div>
             </div>
-          ) : clouds.length === 0 ? (
+          ) : ephemeras.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed border-abbey-200 dark:border-abbey-700 p-8 text-center w-full max-w-4xl mx-auto">
               <h3 className="mb-2 text-xl font-medium text-abbey-800 dark:text-abbey-200">
-                No clouds yet
+                No ephemeras yet
               </h3>
               <p className="mb-4 text-abbey-500 dark:text-abbey-400">
-                Create your first idea cloud to get started
+                Create your first ephemera to get started
               </p>
             </div>
           ) : (
             <div className="w-full max-w-4xl mx-auto">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-8">
-                {clouds.map((cloud) => (
-                  <CloudItem
-                    key={cloud.id}
-                    cloud={cloud}
+                {ephemeras.map((ephemera) => (
+                  <EphemeraItem
+                    key={ephemera.id}
+                    ephemera={ephemera}
                     onInteract={handleInteract}
                   />
                 ))}

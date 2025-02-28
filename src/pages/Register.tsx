@@ -56,7 +56,7 @@ const Register = () => {
         title: "Success",
         description: "Your account has been created.",
       });
-      navigate("/ephemera");
+      navigate("/alive");
     } catch (error: unknown) {
       toast({
         title: "Error",
@@ -111,7 +111,7 @@ const Register = () => {
             Create an account
           </CardTitle>
           <CardDescription className="text-abbey-500 dark:text-abbey-500 max-w-xs mx-auto">
-            Sign up to start creating your cloud ideas
+            Sign up to start creating your ephemera ideas
           </CardDescription>
           {!isSupabaseConfigured && (
             <div className="mt-2 text-sm text-red-500 bg-red-50 p-2 rounded-md">

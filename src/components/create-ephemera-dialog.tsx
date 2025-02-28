@@ -10,17 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 
-interface CreateCloudDialogProps {
-  onCreateCloud: (content: string) => void;
+interface CreateEphemeraDialogProps {
+  onCreateEphemera: (content: string) => void;
 }
 
-const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
+const CreateEphemeraDialog = ({
+  onCreateEphemera,
+}: CreateEphemeraDialogProps) => {
   const [content, setContent] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = () => {
     if (content.trim()) {
-      onCreateCloud(content);
+      onCreateEphemera(content);
       setContent("");
       setOpen(false);
     }
@@ -35,11 +37,11 @@ const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md border-abbey-200 dark:border-abbey-700">
         <DialogHeader>
-          <DialogTitle>Create a new idea cloud</DialogTitle>
+          <DialogTitle>Create a new ephemera</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Textarea
-            placeholder="What's your idea?"
+            placeholder="What's your ephemera?"
             className="min-h-[100px] resize-none border-abbey-200 dark:border-abbey-700 focus-visible:ring-abbey-400"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -49,7 +51,7 @@ const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
             disabled={!content.trim()}
             className="bg-abbey-800 hover:bg-abbey-900 text-white w-full"
           >
-            Create Cloud
+            Create Ephemera
           </Button>
         </div>
       </DialogContent>
@@ -57,4 +59,4 @@ const CreateCloudDialog = ({ onCreateCloud }: CreateCloudDialogProps) => {
   );
 };
 
-export default CreateCloudDialog;
+export default CreateEphemeraDialog;

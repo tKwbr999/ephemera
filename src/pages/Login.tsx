@@ -64,7 +64,7 @@ const Login = () => {
         title: "Success",
         description: "You have successfully logged in.",
       });
-      navigate("/ephemera");
+      navigate("/alive");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -110,7 +110,7 @@ const Login = () => {
             Login skipped
           </p>
           <Link
-            to="/ephemera"
+            to="/alive"
             className="text-blue-500 hover:underline mt-2 block"
           >
             Go to Ephemera
@@ -123,10 +123,10 @@ const Login = () => {
             <Cloud className="h-12 w-12 text-abbey-800 dark:text-abbey-800" />
           </div>
           <CardTitle className="text-2xl font-bold text-abbey-900 dark:text-abbey-900">
-            Welcome back
+            Welcome Ephemera
           </CardTitle>
           <CardDescription className="text-abbey-500 dark:text-abbey-500 max-w-xs mx-auto">
-            Sign in to access your cloud ideas
+            Sign in to access your ephemera ideas
           </CardDescription>
           {!isSupabaseConfigured && (
             <div className="mt-2 text-sm text-red-500 bg-red-50 p-2 rounded-md">

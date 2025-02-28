@@ -137,7 +137,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/ephemera",
+          redirectTo: window.location.origin + "/alive",
         },
       });
 

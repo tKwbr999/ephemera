@@ -1,22 +1,22 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { CloudItem } from "@/components/ephemera-item";
+import { EphemeraItem } from "@/components/ephemera-item";
 import { config } from "@/lib/config";
 
-interface BuriedCloudItemProps {
-  cloud: CloudItem;
+interface BuriedEphemeraItemProps {
+  ephemera: EphemeraItem;
 }
 
-const BuriedCloudItem = ({ cloud }: BuriedCloudItemProps) => {
+const BuriedEphemeraItem = ({ ephemera }: BuriedEphemeraItemProps) => {
   // Calculate minutes since buried
   const minutesSinceBuried = Math.floor(
-    (new Date().getTime() - cloud.lastInteraction.getTime()) / (1000 * 60)
+    (new Date().getTime() - ephemera.lastInteraction.getTime()) / (1000 * 60)
   );
 
-  // Calculate how deep the cloud is buried based on minutes since buried
+  // Calculate how deep the ephemera is buried based on minutes since buried
   // Use the configured lifetime as the basis for maximum burial
   const buriedDepth = Math.min(
-    minutesSinceBuried / config.cloudLifetimeMinutes,
+    minutesSinceBuried / config.ephemeraLifetimeMinutes,
     1
   );
 
@@ -41,24 +41,24 @@ const BuriedCloudItem = ({ cloud }: BuriedCloudItemProps) => {
       <CardContent className="relative p-6 flex flex-col items-center text-center h-full">
         <div className="mb-4 flex flex-col items-center justify-between w-full">
           <div className="text-xs text-abbey-500 dark:text-abbey-400 mb-1">
-            Created {formatDistanceToNow(cloud.createdAt)} ago
+            Created {formatDistanceToNow(ephemera.createdAt)} ago
           </div>
           <div className="text-xs text-abbey-500 dark:text-abbey-400">
-            Buried {formatDistanceToNow(cloud.lastInteraction)} ago
+            Buried {formatDistanceToNow(ephemera.lastInteraction)} ago
           </div>
         </div>
         <p
           className="mb-4 text-lg font-medium text-abbey-900 dark:text-abbey-50 flex-grow"
           style={textStyle}
         >
-          {cloud.content}
+          {ephemera.content}
         </p>
         <div className="mt-4 text-xs text-abbey-500 dark:text-abbey-400">
-          This idea has returned to the earth.
+          This ephemera has returned to the void.
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export default BuriedCloudItem;
+export default BuriedEphemeraItem;

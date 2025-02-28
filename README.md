@@ -1,13 +1,13 @@
-# Cloud Ideas App
+# Ephemera Ideas App
 
-A beautiful application for storing and managing your ideas as clouds that fade over time if not interacted with.
+A beautiful application for storing and managing your ephemeras as ephemeras that fade over time if not interacted with.
 
 ## Features
 
 - User authentication with email/password and Google login
-- Create and manage idea "clouds"
-- Clouds fade over time if not interacted with
-- Buried clouds section for ideas that have completely faded
+- Create and manage idea "ephemeras"
+- Ephemera fade over time if not interacted with
+- Buried ephemeras section for ideas that have completely faded
 - Beautiful UI with visual representation of idea "freshness"
 - QR code sharing for easy access on multiple devices
 
@@ -24,9 +24,9 @@ A beautiful application for storing and managing your ideas as clouds that fade 
    - Go to your Supabase ephemera
    - Navigate to Authentication > Providers
    - Enable Google provider
-   - Create a Google OAuth client ID and secret in the Google Cloud Console
+   - Create a Google OAuth client ID and secret in the Google Ephemera Console
    - Add the client ID and secret to Supabase
-   - Add your app's URL to the authorized redirect URIs in Google Cloud Console
+   - Add your app's URL to the authorized redirect URIs in Google Ephemera Console
 
 5. Run the development server with `npm run dev`
 
@@ -42,9 +42,9 @@ VITE_CLOUD_LIFETIME_DEV=1
 DEV_MODE=true
 ```
 
-- `VITE_CLOUD_LIFETIME`: Cloud lifetime in minutes (default: 43200 = 30 days)
-- `VITE_CLOUD_LIFETIME_DEV`: Cloud lifetime for development mode in minutes
-- `DEV_MODE`: Set to true to use the development mode cloud lifetime
+- `VITE_CLOUD_LIFETIME`: Ephemera lifetime in minutes (default: 43200 = 30 days)
+- `VITE_CLOUD_LIFETIME_DEV`: Ephemera lifetime for development mode in minutes
+- `DEV_MODE`: Set to true to use the development mode ephemera lifetime
 
 ## Technologies Used
 

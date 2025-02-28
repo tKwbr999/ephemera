@@ -44,14 +44,14 @@ function App() {
   }
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="cloud-ideas-theme">
+    <ThemeProvider defaultTheme="light" storageKey="ephemera-ideas-theme">
       <UserProvider>
         <div className="min-h-screen w-full bg-white max-w-md mx-auto">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
-              path="/ephemera"
+              path="/alive"
               element={
                 <ProtectedRoute>
                   <Ephemera />
@@ -66,7 +66,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/" element={<Navigate to="/ephemera" replace />} />
+            <Route path="/" element={<Navigate to="/alive" replace />} />
           </Routes>
         </div>
         <Toaster />
