@@ -116,7 +116,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -126,6 +126,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           throw new Error("Email or password is incorrect. Please try again.");
         }
         throw error;
+      }
+
+      // Immediately update local state after successful login
+      if (data.session) {
+        setSession(data.session);
+        setIsAuthenticated(true);
+        if (data.user) {
+          setUserFromSupabaseUser(data.user);
+        }
       }
     } catch (error: unknown) {
       toast({
@@ -167,7 +176,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const register = async (email: string, password: string, name?: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -179,6 +188,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
       if (error) {
         throw error;
+      }
+
+      // Update state after successful registration
+      if (data.session) {
+        setSession(data.session);
+        setIsAuthenticated(true);
+        if (data.user) {
+          setUserFromSupabaseUser(data.user);
+        }
       }
     } catch (error: unknown) {
       toast({
@@ -195,12 +213,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const logout = async () => {
     try {
+      // Clear state before actual logout
+      setUser(null);
+      setIsAuthenticated(false);
+      setSession(null);
+
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
       }
-      setUser(null);
-      setIsAuthenticated(false);
     } catch (error: unknown) {
       toast({
         title: "Logout failed",

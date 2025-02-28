@@ -23,7 +23,7 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const { login, loginWithGoogle } = useUser();
+  const { login, loginWithGoogle, isAuthenticated } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -34,6 +34,13 @@ const Login = () => {
 
     setIsSupabaseConfigured(!!supabaseUrl && !!supabaseKey);
   }, []);
+
+  // Add effect to redirect when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/alive");
+    }
+  }, [isAuthenticated, navigate]);
 
   // Clear error when email or password changes
   useEffect(() => {
@@ -64,7 +71,7 @@ const Login = () => {
         title: "Success",
         description: "You have successfully logged in.",
       });
-      navigate("/alive");
+      // Remove navigation here - will be handled by the useEffect
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -90,15 +97,15 @@ const Login = () => {
     setIsGoogleLoading(true);
     try {
       await loginWithGoogle();
-      // No need for toast or navigation here as it will redirect to Google
+      // No need for navigation here - Google auth will redirect
     } catch (error) {
-      // Error is handled in the loginWithGoogle function
       console.error(error);
     } finally {
       setIsGoogleLoading(false);
     }
   };
 
+  // Rest of component remains the same
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       {import.meta.env.VITE_DEBUG && (
