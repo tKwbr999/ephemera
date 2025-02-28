@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Cloud, CloudOff, DoorOpen, Share2, ExternalLink } from "lucide-react";
+import { Cloud, CloudOff, DoorOpen, Share2 } from "lucide-react";
 import { useUser } from "@/contexts/user-context";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -70,7 +69,11 @@ const AppNavigation = () => {
                   variant={
                     location.pathname === item.path ? "default" : "ghost"
                   }
-                  className="flex items-center bg-abbey-900 text-white hover:bg-abbey-800"
+                  className={
+                    location.pathname === item.path
+                      ? "flex items-center bg-abbey-900 text-white hover:bg-abbey-800"
+                      : "flex items-center bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white"
+                  }
                 >
                   {item.icon}
                   <span className="ml-2 md:inline hidden">{item.name}</span>
@@ -84,14 +87,14 @@ const AppNavigation = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative h-10 w-10 rounded-full bg-abbey-900 text-white hover:bg-abbey-800"
+                className="relative h-10 w-10 rounded-full bg-abbey-200 text-white hover:bg-abbey-800"
               >
-                <Avatar className="h-10 w-10 border border-abbey-200 dark:border-abbey-700">
+                <Avatar className="h-10 w-10">
                   <AvatarImage
                     src={user?.avatar_url}
                     alt={user?.name || "User"}
                   />
-                  <AvatarFallback className="bg-abbey-100 text-abbey-800">
+                  <AvatarFallback className="bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white">
                     {user?.name ? getInitials(user.name) : "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -134,9 +137,9 @@ const AppNavigation = () => {
                     <p className="text-sm text-abbey-700 dark:text-abbey-300">
                       Or share via link:
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={handleCopyLink}
                       className="mt-2 text-xs bg-abbey-900 text-white hover:bg-abbey-800 border-abbey-900"
                     >

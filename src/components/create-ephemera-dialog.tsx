@@ -31,7 +31,7 @@ const CreateEphemeraDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="fixed bottom-6 left-1/2 transform -translate-x-1/2 h-14 w-14 rounded-full shadow-lg bg-abbey-900 hover:bg-abbey-800 text-white">
+        <Button className="fixed bottom-6 left-1/2 transform -translate-x-1/2 h-14 w-14 rounded-full shadow-lg bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white">
           <PlusCircle className="h-6 w-6" />
         </Button>
       </DialogTrigger>
@@ -49,7 +49,7 @@ const CreateEphemeraDialog = ({
           <Button
             onClick={handleSubmit}
             disabled={!content.trim()}
-            className="bg-abbey-900 hover:bg-abbey-800 text-white w-full"
+            className="bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white w-full"
           >
             Create Ephemera
           </Button>

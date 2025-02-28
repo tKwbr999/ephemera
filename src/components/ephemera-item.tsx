@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, differenceInMinutes } from "date-fns";
 import { cn } from "@/lib/utils";
+import { config } from "@/lib/config";
 
 export interface EphemeraItem {
   id: string;
@@ -20,14 +21,38 @@ interface EphemeraItemProps {
 const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
   const [opacity, setOpacity] = useState(1);
   const [gradientStyle, setGradientStyle] = useState({});
+  const [interestLevel, setInterestLevel] = useState(ephemera.interestLevel);
+
+  useEffect(() => {
+    // Calculate the elapsed time in minutes since the last interaction
+    const elapsedTime = differenceInMinutes(
+      new Date(),
+      ephemera.lastInteraction
+    );
+
+    // Calculate the lifetime in minutes based on devMode
+    const ephemeraLifetime = config.devMode
+      ? config.ephemeraLifetimeMinutes
+      : config.ephemeraLifetimeString * 24 * 60;
+
+    // Calculate the remaining lifetime in minutes
+    const remainingLifetime = ephemeraLifetime - elapsedTime;
+
+    // Calculate the interest level as a percentage
+    const newInterestLevel = Math.max(
+      0,
+      (remainingLifetime / ephemeraLifetime) * 100
+    );
+    setInterestLevel(newInterestLevel);
+  }, [ephemera.lastInteraction, config.devMode]);
 
   useEffect(() => {
     // Calculate opacity based on interest level
-    setOpacity(0.3 + (ephemera.interestLevel / 100) * 0.7);
+    setOpacity(0.3 + (interestLevel / 100) * 0.7);
 
     // Calculate gradient based on interest level
     // As interest level decreases, the ephemera becomes more white (fades away)
-    const blackOpacity = ephemera.interestLevel / 100;
+    const blackOpacity = interestLevel / 100;
 
     // Use separate properties instead of shorthand to avoid React warnings
     setGradientStyle({
@@ -39,7 +64,7 @@ const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
       backgroundClip: "text",
       color: "transparent", // Use color: transparent instead of textFillColor
     });
-  }, [ephemera.interestLevel]);
+  }, [interestLevel]);
 
   const handleInteract = () => {
     onInteract(ephemera.id);
@@ -76,10 +101,10 @@ const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
               Interest Level
             </span>
             <span className="text-xs font-medium text-abbey-700 dark:text-abbey-300">
-              {ephemera.interestLevel}%
+              {interestLevel.toFixed(0)}%
             </span>
           </div>
-          <Progress value={ephemera.interestLevel} className="h-1" />
+          <Progress value={interestLevel} className="h-1" />
         </div>
       </CardContent>
     </Card>
