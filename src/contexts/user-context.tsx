@@ -24,6 +24,7 @@ interface UserContextType {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   session: Session | null;
+  debugLogin: () => void; // New debug login function
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -46,19 +47,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const { toast } = useToast();
 
-  // Check for VITE_DEBUG flag outside useEffect
+  // Check for VITE_DEBUG flag
   const isDebugMode = import.meta.env.VITE_DEBUG === "true";
 
   useEffect(() => {
-    // Get the initial session
-    if (isDebugMode) {
-      setIsAuthenticated(true);
-      setUser({
-        id: "debug-user",
-        email: "debug@example.com",
-        name: "Debug User",
-      });
-    } else {
+    // Always start with not authenticated, even in debug mode
+    // This will show the login screen first
+
+    // Get the initial session (for non-debug mode)
+    if (!isDebugMode) {
       supabase.auth
         .getSession()
         .then(
@@ -73,9 +70,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         .catch((error: unknown) => {
           console.warn("Error getting session:", error);
         });
+    }
 
-      try {
-        // Listen for auth changes
+    try {
+      // Listen for auth changes (for non-debug mode)
+      if (!isDebugMode) {
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange(
@@ -93,11 +92,12 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         return () => {
           subscription?.unsubscribe();
         };
-      } catch (error: unknown) {
-        console.warn("Error setting up auth state change listener:", error);
-        return () => {};
       }
+    } catch (error: unknown) {
+      console.warn("Error setting up auth state change listener:", error);
     }
+
+    return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,7 +114,35 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setUser(userData);
   };
 
+  // Debug login function
+  const debugLogin = () => {
+    if (isDebugMode) {
+      setIsAuthenticated(true);
+      setUser({
+        id: "debug-user",
+        email: "debug@example.com",
+        name: "Debug User",
+      });
+      toast({
+        title: "Debug mode",
+        description: "Logged in as Debug User",
+      });
+    }
+  };
+
   const login = async (email: string, password: string) => {
+    // In debug mode, simulate login
+    if (isDebugMode) {
+      setIsAuthenticated(true);
+      setUser({
+        id: "debug-user",
+        email: email || "debug@example.com",
+        name: email ? email.split("@")[0] : "Debug User",
+      });
+      return;
+    }
+
+    // Normal login flow
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -150,6 +178,18 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const loginWithGoogle = async () => {
+    // In debug mode, simulate login
+    if (isDebugMode) {
+      setIsAuthenticated(true);
+      setUser({
+        id: "debug-user",
+        email: "debug-google@example.com",
+        name: "Debug Google User",
+      });
+      return;
+    }
+
+    // Normal Google login flow
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -175,6 +215,18 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const register = async (email: string, password: string, name?: string) => {
+    // In debug mode, simulate registration
+    if (isDebugMode) {
+      setIsAuthenticated(true);
+      setUser({
+        id: "debug-user",
+        email: email || "debug-registered@example.com",
+        name: name || (email ? email.split("@")[0] : "Debug Registered User"),
+      });
+      return;
+    }
+
+    // Normal registration flow
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -212,6 +264,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const logout = async () => {
+    // In debug mode, just reset the state
+    if (isDebugMode) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setSession(null);
+      return;
+    }
+
+    // Normal logout flow
     try {
       // Clear state before actual logout
       setUser(null);
@@ -244,6 +305,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         register,
         logout,
         session,
+        debugLogin, // Expose the debug login function
       }}
     >
       {children}

@@ -23,17 +23,20 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const { login, loginWithGoogle, isAuthenticated } = useUser();
+  const { login, loginWithGoogle, isAuthenticated, debugLogin } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check if debug mode is enabled
+  const isDebugMode = import.meta.env.VITE_DEBUG === "true";
 
   useEffect(() => {
     // Check if Supabase is configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    setIsSupabaseConfigured(!!supabaseUrl && !!supabaseKey);
-  }, []);
+    setIsSupabaseConfigured((!!supabaseUrl && !!supabaseKey) || isDebugMode);
+  }, [isDebugMode]);
 
   // Add effect to redirect when authentication state changes
   useEffect(() => {
@@ -52,7 +55,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured && !isDebugMode) {
       toast({
         title: "Authentication unavailable",
         description:
@@ -71,7 +74,7 @@ const Login = () => {
         title: "Success",
         description: "You have successfully logged in.",
       });
-      // Remove navigation here - will be handled by the useEffect
+      // Redirect will be handled by the useEffect
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -84,7 +87,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured && !isDebugMode) {
       toast({
         title: "Authentication unavailable",
         description:
@@ -97,7 +100,7 @@ const Login = () => {
     setIsGoogleLoading(true);
     try {
       await loginWithGoogle();
-      // No need for navigation here - Google auth will redirect
+      // Redirect will be handled by Google or useEffect
     } catch (error) {
       console.error(error);
     } finally {
@@ -105,23 +108,27 @@ const Login = () => {
     }
   };
 
-  // Rest of component remains the same
+  const handleDebugLogin = () => {
+    debugLogin();
+    // Redirect will be handled by the useEffect
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      {import.meta.env.VITE_DEBUG && (
+      {isDebugMode && (
         <div className="absolute top-4 right-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md shadow-md">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Debug Mode
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Login skipped
+            Login required
           </p>
-          <Link
-            to="/alive"
-            className="text-blue-500 hover:underline mt-2 block"
+          <Button
+            onClick={handleDebugLogin}
+            className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white"
           >
-            Go to Ephemera
-          </Link>
+            Use Debug Login
+          </Button>
         </div>
       )}
       <Card className="w-full max-w-md border-abbey-200 dark:border-abbey-700 mx-auto text-center rounded-xl">
@@ -135,10 +142,16 @@ const Login = () => {
           <CardDescription className="text-abbey-500 dark:text-abbey-500 max-w-xs mx-auto">
             Sign in to access your ephemera ideas
           </CardDescription>
-          {!isSupabaseConfigured && (
+          {!isSupabaseConfigured && !isDebugMode && (
             <div className="mt-2 text-sm text-red-500 bg-red-50 p-2 rounded-md">
               Please connect to Supabase from the StackBlitz interface to enable
               authentication.
+            </div>
+          )}
+          {isDebugMode && (
+            <div className="mt-2 text-sm text-green-500 bg-green-50 p-2 rounded-md">
+              Debug mode active. You can use any credentials or the debug login
+              button.
             </div>
           )}
         </CardHeader>
@@ -148,7 +161,9 @@ const Login = () => {
             variant="outline"
             className="w-full bg-abbey-900 hover:bg-abbey-800 text-white border-abbey-900 flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
-            disabled={isGoogleLoading || !isSupabaseConfigured}
+            disabled={
+              isGoogleLoading || (!isSupabaseConfigured && !isDebugMode)
+            }
           >
             {isGoogleLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-abbey-400 border-t-transparent"></div>
@@ -238,7 +253,7 @@ const Login = () => {
             <Button
               type="submit"
               className="w-full bg-abbey-900 hover:bg-abbey-800 text-white"
-              disabled={isLoading || !isSupabaseConfigured}
+              disabled={isLoading || (!isSupabaseConfigured && !isDebugMode)}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
