@@ -5,8 +5,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-abbey-200 text-black shadow hover:bg-abbey-800 hover:text-white",
+        default: "bg-abbey-200 text-black hover:bg-abbey-800 hover:text-white",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
