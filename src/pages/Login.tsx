@@ -157,7 +157,7 @@ const Login = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-abbey-900 hover:bg-abbey-800 text-white"
+              className="w-full bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
