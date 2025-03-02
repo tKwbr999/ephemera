@@ -7,19 +7,26 @@ import { buttonVariants } from "./button-variants";
 
 type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 
-interface ButtonProps
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     ButtonVariantProps {
   asChild?: boolean;
+  href?: string; // aタグ用のプロパティを追加
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp: React.ElementType = asChild ? Slot : "button";
+  ({ className, variant, size, asChild = false, href, ...props }, ref) => {
+    // hrefがある場合はリンクとして扱う
+    const Comp: React.ElementType = asChild ? Slot : href ? "a" : "button";
+    
+    // hrefがある場合はリンク用のプロパティを追加
+    const linkProps = href ? { href } : {};
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        {...linkProps}
         {...props}
       />
     );

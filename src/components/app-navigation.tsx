@@ -22,8 +22,8 @@ const AppNavigation = () => {
                   }
                   className={
                     location.pathname === item.path
-                      ? "flex items-center bg-abbey-900 text-white hover:bg-abbey-800"
-                      : "flex items-center bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white"
+                      ? "flex items-center"
+                      : "flex items-center"
                   }
                 >
                   {item.icon}

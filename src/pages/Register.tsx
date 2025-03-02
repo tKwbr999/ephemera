@@ -91,7 +91,8 @@ const Register = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-abbey-900 hover:bg-abbey-800 text-white"
+              variant="default"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -109,7 +110,7 @@ const Register = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full bg-abbey-900 hover:bg-abbey-800 text-white border-abbey-900 flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
             disabled={isLoading}
           >

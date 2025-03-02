@@ -6,15 +6,15 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "text-gray-500 bg-abbey-200 text-black hover:bg-abbey-800 hover:text-white focus:ring-black focus:ring-offset-2 focus:ring-offset-gray-50",
+          "bg-abbey-200 text-abbey-900 hover:bg-abbey-800 hover:text-white focus:ring-black focus:ring-offset-2 focus:ring-offset-gray-50 dark:bg-abbey-700 dark:text-abbey-50 dark:hover:bg-abbey-600",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-red-500 text-white shadow-sm hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-abbey-300 bg-transparent text-abbey-900 shadow-sm hover:bg-abbey-100 hover:text-abbey-900 dark:border-abbey-600 dark:text-abbey-100 dark:hover:bg-abbey-800 dark:hover:text-abbey-50",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-gray-500 underline-offset-4 hover:underline",
+          "bg-abbey-100 text-abbey-900 shadow-sm hover:bg-abbey-200/80 dark:bg-abbey-800 dark:text-abbey-100 dark:hover:bg-abbey-700",
+        ghost: "text-abbey-700 hover:bg-abbey-100 hover:text-abbey-900 dark:text-abbey-200 dark:hover:bg-abbey-800 dark:hover:text-abbey-50",
+        link: "text-abbey-700 underline-offset-4 hover:underline dark:text-abbey-200",
       },
       size: {
         default: "h-9 px-4 py-2",

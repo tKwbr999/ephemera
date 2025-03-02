@@ -19,11 +19,13 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  /* もしいい色があれば設定 */
+  /* color: #646cff; */
+  text-decoration: none;
 }
 a:hover {
-  color: #535bf2;
+  /* もしいい色があれば設定 */
+  /* color: #535bf2; */
 }
 
 body {
@@ -52,7 +54,8 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  /* もしいい色があれば設定 */
+  /* border-color: #646cff; */
 }
 button:focus,
 button:focus-visible {
@@ -65,7 +68,8 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    /* もしいい色があれば設定 */
+    /* color: #747bff; */
   }
   button {
     background-color: #f9f9f9;
@@ -134,5 +138,18 @@ button:focus-visible {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* リンク内のボタンスタイルを制御 */
+  a .inline-flex {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  /* navリンク内のボタンテキスト色を反転・制御 */
+  nav a:hover {
+    color: inherit; /* hover色を上書き */
   }
 }

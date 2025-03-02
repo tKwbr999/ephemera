@@ -68,7 +68,7 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full bg-abbey-900 hover:bg-abbey-800 text-white border-abbey-900 flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
             disabled={isLoading}
           >
@@ -157,7 +157,8 @@ const Login = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-abbey-200 hover:bg-abbey-800 text-black hover:text-white"
+              variant="default"
+              className="w-full"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

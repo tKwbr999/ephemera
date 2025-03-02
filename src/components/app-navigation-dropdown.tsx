@@ -31,7 +31,7 @@ const AppNavigationDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-10 w-10 rounded-full bg-abbey-200 text-white hover:bg-abbey-800"
+          className="relative h-10 w-10 rounded-full"
         >
           <Avatar className="h-10 w-10">
             <AvatarImage src={user?.avatar_url} alt={user?.name || "User"} />
@@ -79,10 +79,10 @@ const AppNavigationDropdown = () => {
                 Or share via link:
               </p>
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={handleCopyLink}
-                className="mt-2 text-xs bg-abbey-900 text-white hover:bg-abbey-800 border-abbey-900"
+                className="mt-2 text-xs"
               >
                 Copy link to clipboard
               </Button>
