@@ -5,7 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,57 +50,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   // Check for VITE_DEBUG flag
   const isDebugMode = import.meta.env.VITE_DEBUG === "true";
 
-  useEffect(() => {
-    // Always start with not authenticated, even in debug mode
-    // This will show the login screen first
-
-    // Get the initial session (for non-debug mode)
-    if (!isDebugMode) {
-      supabase.auth
-        .getSession()
-        .then(
-          ({ data: { session } }: { data: { session: Session | null } }) => {
-            setSession(session);
-            setIsAuthenticated(!!session);
-            if (session?.user) {
-              setUserFromSupabaseUser(session.user);
-            }
-          }
-        )
-        .catch((error: unknown) => {
-          console.warn("Error getting session:", error);
-        });
-    }
-
-    try {
-      // Listen for auth changes (for non-debug mode)
-      if (!isDebugMode) {
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(
-          (_event: string, session: Session | null) => {
-            setSession(session);
-            setIsAuthenticated(!!session);
-            if (session?.user) {
-              setUserFromSupabaseUser(session.user);
-            } else {
-              setUser(null);
-            }
-          }
-        );
-
-        return () => {
-          subscription?.unsubscribe();
-        };
-      }
-    } catch (error: unknown) {
-      console.warn("Error setting up auth state change listener:", error);
-    }
-
-    return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const setUserFromSupabaseUser = (supabaseUser: SupabaseUser) => {
     const userData: User = {
       id: supabaseUser.id,
@@ -114,6 +63,148 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setUser(userData);
   };
 
+  // 初回の認証セッション確認
+  useEffect(() => {
+    const checkAuthSession = async () => {
+      try {
+        // デバッグモードでも認証セッションをチェック
+        if (isSupabaseConfigured()) {
+          console.log("初期認証セッションを確認中...");
+          const { data, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error("セッション取得エラー:", error);
+            return;
+          }
+          
+          const { session } = data;
+          
+          // セッションに基づいて認証状態を更新
+          setSession(session);
+          setIsAuthenticated(!!session);
+          
+          if (session?.user) {
+            setUserFromSupabaseUser(session.user);
+            console.log("認証済みユーザー:", session.user.email);
+            // ローカルストレージにセッション情報を一時保存（セキュリティに注意）
+            localStorage.setItem('ephemera_auth_state', 'authenticated');
+          } else {
+            console.log("アクティブセッションがありません");
+            localStorage.removeItem('ephemera_auth_state');
+            setUser(null);
+          }
+        }
+      } catch (err) {
+        console.error("認証チェックエラー:", err);
+      }
+    };
+    
+    // 初期認証チェックを実行
+    checkAuthSession();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  // オンライン状態の監視
+  useEffect(() => {
+    const handleOnline = () => {
+      // オンラインになった時に認証セッションを再確認
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          setSession(data.session);
+          setIsAuthenticated(true);
+          setUserFromSupabaseUser(data.session.user);
+        }
+      });
+    };
+    
+    window.addEventListener('online', handleOnline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
+  // 認証状態の変化を監視
+  useEffect(() => {
+    // リスナー登録のための関数
+    const setupAuthListener = () => {
+      try {
+        // デバッグモードに関わらずリスナーを設定
+        if (isSupabaseConfigured()) {
+          console.log('認証状態変更リスナーを登録します');
+          
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange(
+            (event: string, session: Session | null) => {
+              console.log(`認証状態変更イベント: ${event}`);
+              
+              // セッション状態を更新
+              setSession(session);
+              setIsAuthenticated(!!session);
+              
+              if (session?.user) {
+                setUserFromSupabaseUser(session.user);
+                // ローカルストレージに認証状態を保存
+                localStorage.setItem('ephemera_auth_state', 'authenticated');
+                
+                // ログイン成功時のトースト
+                if (event === 'SIGNED_IN') {
+                  toast({
+                    title: "ログイン成功",
+                    description: `${session.user.email || 'ユーザー'}としてログインしました`,
+                    variant: "default",
+                  });
+                }
+              } else {
+                setUser(null);
+                localStorage.removeItem('ephemera_auth_state');
+              }
+              
+              // イベントによるリダイレクト処理 - メインスレッドをブロックしないように非同期で処理
+              setTimeout(() => {
+                switch (event) {
+                  case 'SIGNED_IN':
+                    console.log('認証成功しました: SIGNED_IN');
+                    // ログインページにいる場合はリダイレクト
+                    if (window.location.pathname === '/login' || window.location.pathname === '/register') {
+                      window.location.href = '/alive';
+                    }
+                    break;
+                  
+                  case 'SIGNED_OUT':
+                    console.log('ログアウトしました: SIGNED_OUT');
+                    // aliveページにいる場合はログインページにリダイレクト
+                    if (window.location.pathname === '/alive') {
+                      window.location.href = '/login';
+                    }
+                    break;
+                }
+              }, 0);
+            }
+          );
+
+          return () => {
+            subscription?.unsubscribe();
+          };
+        }
+      } catch (error) {
+        console.warn("認証状態リスナー設定エラー:", error);
+      }
+      
+      return undefined;
+    };
+    
+    // リスナーを設定
+    const unsubscribe = setupAuthListener();
+    
+    // クリーンアップ関数
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Debug login function
   const debugLogin = () => {
     if (isDebugMode) {
@@ -125,24 +216,19 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       });
       toast({
         title: "Debug mode",
-        description: "Logged in as Debug User",
+        description: "Logged in as Debug User without authentication",
+      });
+    } else {
+      toast({
+        title: "Debug mode not enabled",
+        description: "Cannot use debug login in production mode",
+        variant: "destructive",
       });
     }
   };
 
   const login = async (email: string, password: string) => {
-    // In debug mode, simulate login
-    if (isDebugMode) {
-      setIsAuthenticated(true);
-      setUser({
-        id: "debug-user",
-        email: email || "debug@example.com",
-        name: email ? email.split("@")[0] : "Debug User",
-      });
-      return;
-    }
-
-    // Normal login flow
+    // 通常のログイン処理
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -178,29 +264,37 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const loginWithGoogle = async () => {
-    // In debug mode, simulate login
-    if (isDebugMode) {
-      setIsAuthenticated(true);
-      setUser({
-        id: "debug-user",
-        email: "debug-google@example.com",
-        name: "Debug Google User",
-      });
-      return;
-    }
-
-    // Normal Google login flow
+    // 通常のGoogleログイン処理
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Check if Supabase is properly configured
+      if (!isSupabaseConfigured()) {
+        throw new Error("Supabase is not properly configured. Please check your environment variables.");
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/alive",
+          redirectTo: `${window.location.origin}/alive`, // 明示的なURL形式
+          // Add scopes for additional Google API access if needed
+          scopes: "email profile", 
+          // You can add additional query parameters if needed
+          queryParams: {
+            access_type: "offline", // Gets a refresh token
+            // prompt: "consent" を削除（初回認証時のみ同意を求める）
+          }
         },
       });
 
       if (error) {
         throw error;
       }
+
+      // The authentication will redirect to Google for OAuth flow
+      // and will return to the redirectUrl specified above
+      // No need to manually update state here as the onAuthStateChange listener
+      // will handle this when the user is redirected back
+      
+      return data;
     } catch (error: unknown) {
       toast({
         title: "Google login failed",
@@ -215,18 +309,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const register = async (email: string, password: string, name?: string) => {
-    // In debug mode, simulate registration
-    if (isDebugMode) {
-      setIsAuthenticated(true);
-      setUser({
-        id: "debug-user",
-        email: email || "debug-registered@example.com",
-        name: name || (email ? email.split("@")[0] : "Debug Registered User"),
-      });
-      return;
-    }
-
-    // Normal registration flow
+    // 通常のユーザー登録処理
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -264,21 +347,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const logout = async () => {
-    // In debug mode, just reset the state
-    if (isDebugMode) {
-      setUser(null);
-      setIsAuthenticated(false);
-      setSession(null);
-      return;
-    }
-
-    // Normal logout flow
     try {
       // Clear state before actual logout
       setUser(null);
       setIsAuthenticated(false);
       setSession(null);
 
+      // デバッグモードでもSupabaseからのログアウトを試みる
+      // 認証されていない場合はエラーにならない
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;

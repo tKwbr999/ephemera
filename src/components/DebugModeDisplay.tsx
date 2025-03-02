@@ -12,12 +12,17 @@ const DebugModeDisplay: React.FC<DebugModeDisplayProps> = ({
       <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
         Debug Mode
       </h1>
-      <p className="text-sm text-gray-600 dark:text-gray-400">Login required</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+        Auth is active in debug mode
+      </p>
+      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+        For quick testing without auth:
+      </p>
       <Button
         onClick={handleDebugLogin}
         className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white"
       >
-        Use Debug Login
+        User Debug Login
       </Button>
     </div>
   );

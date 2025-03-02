@@ -68,9 +68,9 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             onClick={handleGoogleLogin}
-            disabled={isLoading}
+            disabled={isLoading || isGoogleLoading}
           >
             {isGoogleLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-abbey-400 border-t-transparent"></div>
