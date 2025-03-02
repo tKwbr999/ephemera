@@ -1,36 +1,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { EphemeraItem } from "@/components/ephemera-item";
-import { config } from "@/lib/config";
+import { EphemeraItem } from "@/types/ephemera";
+import { calculateBurialDepth, createTextGradientStyle } from "@/lib/utils/ephemera-calculator";
 
 interface BuriedEphemeraItemProps {
   ephemera: EphemeraItem;
 }
 
 const BuriedEphemeraItem = ({ ephemera }: BuriedEphemeraItemProps) => {
-  // Calculate minutes since buried
-  const minutesSinceBuried = Math.floor(
-    (new Date().getTime() - ephemera.lastInteraction.getTime()) / (1000 * 60)
-  );
+  // Calculate how deep the ephemera is buried
+  const buriedDepth = calculateBurialDepth(ephemera.lastInteraction);
 
-  // Calculate how deep the ephemera is buried based on minutes since buried
-  // Use the configured lifetime as the basis for maximum burial
-  const buriedDepth = Math.min(
-    minutesSinceBuried / config.ephemeraLifetimeMinutes,
-    1
-  );
-
-  // Create a gradient from black to white based on burial depth
-  // Use separate properties instead of shorthand to avoid React warnings
-  const textStyle = {
-    backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, ${
-      1 - buriedDepth
-    }), rgba(255, 255, 255, ${buriedDepth}))`,
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-    color: "transparent", // Use color: transparent instead of textFillColor
-  };
+  // Create a gradient style for the text based on burial depth
+  const textStyle = createTextGradientStyle(buriedDepth);
 
   return (
     <Card className="relative overflow-hidden border-abbey-300 dark:border-abbey-700 opacity-70 h-full">

@@ -68,6 +68,7 @@ export default {
           900: "#3b3b3e",
           950: "#252627",
         },
+        "black-glow": "0 0 5px black",
       },
       keyframes: {
         "accordion-down": {

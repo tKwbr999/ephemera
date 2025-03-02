@@ -1,50 +1,26 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { formatDistanceToNow, differenceInMinutes } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { config } from "@/lib/config";
-
-export interface EphemeraItem {
-  id: string;
-  content: string;
-  createdAt: Date;
-  lastInteraction: Date;
-  interestLevel: number;
-}
+import { EphemeraItem } from "@/types/ephemera";
+import { calculateInterestLevel, createTextGradientStyle } from "@/lib/utils/ephemera-calculator";
 
 interface EphemeraItemProps {
   ephemera: EphemeraItem;
   onInteract: (id: string) => void;
 }
 
-const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
+const EphemeraItemComponent = ({ ephemera, onInteract }: EphemeraItemProps) => {
   const [opacity, setOpacity] = useState(1);
-  const [gradientStyle, setGradientStyle] = useState({});
+  const [gradientStyle, setGradientStyle] = useState<React.CSSProperties>({});
   const [interestLevel, setInterestLevel] = useState(ephemera.interestLevel);
 
   useEffect(() => {
-    // Calculate the elapsed time in minutes since the last interaction
-    const elapsedTime = differenceInMinutes(
-      new Date(),
-      ephemera.lastInteraction
-    );
-
-    // Calculate the lifetime in minutes based on devMode
-    const ephemeraLifetime = config.devMode
-      ? config.ephemeraLifetimeMinutes
-      : config.ephemeraLifetimeString * 24 * 60;
-
-    // Calculate the remaining lifetime in minutes
-    const remainingLifetime = ephemeraLifetime - elapsedTime;
-
-    // Calculate the interest level as a percentage
-    const newInterestLevel = Math.max(
-      0,
-      (remainingLifetime / ephemeraLifetime) * 100
-    );
+    // Calculate the interest level based on time elapsed
+    const newInterestLevel = calculateInterestLevel(ephemera.lastInteraction);
     setInterestLevel(newInterestLevel);
-  }, [ephemera.lastInteraction, config.devMode]);
+  }, [ephemera.lastInteraction]);
 
   useEffect(() => {
     // Calculate opacity based on interest level
@@ -53,17 +29,7 @@ const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
     // Calculate gradient based on interest level
     // As interest level decreases, the ephemera becomes more white (fades away)
     const blackOpacity = interestLevel / 100;
-
-    // Use separate properties instead of shorthand to avoid React warnings
-    setGradientStyle({
-      backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, ${blackOpacity}), rgba(255, 255, 255, ${
-        1 - blackOpacity
-      }))`,
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-      color: "transparent", // Use color: transparent instead of textFillColor
-    });
+    setGradientStyle(createTextGradientStyle(1 - blackOpacity));
   }, [interestLevel]);
 
   const handleInteract = () => {
@@ -111,6 +77,7 @@ const EphemeraItem = ({ ephemera, onInteract }: EphemeraItemProps) => {
   );
 };
 
-export default EphemeraItem;
+export default EphemeraItemComponent;
 
-export { EphemeraItem };
+// Re-export the type for backward compatibility, but the main type definition is now in /types/ephemera.ts
+export type { EphemeraItem };

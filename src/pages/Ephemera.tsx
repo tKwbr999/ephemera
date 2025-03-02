@@ -1,39 +1,31 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AppNavigation from "@/components/app-navigation";
-import EphemeraItem, {
-  EphemeraItem as EphemeraItemType,
-} from "@/components/ephemera-item";
+import EphemeraItemComponent, { EphemeraItem } from "@/components/ephemera-item";
 import CreateEphemeraDialog from "@/components/create-ephemera-dialog";
 import { useUser } from "@/contexts/user-context";
 import { config } from "@/lib/config";
+import { 
+  loadActiveEphemera, 
+  saveEphemeraItems, 
+  createEphemeraItem, 
+  refreshEphemeraItem, 
+  loadBuriedEphemera 
+} from "@/lib/utils/ephemera-storage";
+import { updateEphemeraInterestLevels } from "@/lib/utils/ephemera-calculator";
 
 const Ephemera = () => {
   const { user } = useUser();
   const { toast } = useToast();
-  const [ephemeras, setEphemera] = useState<EphemeraItemType[]>([]);
+  const [ephemeras, setEphemera] = useState<EphemeraItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    // For demo purposes, we'll load from localStorage
-    const loadEphemera = () => {
+    // Load ephemeras from localStorage
+    const loadEphemeraData = () => {
       try {
-        const storedEphemera = localStorage.getItem(`ephemeras-${user?.id}`);
-        if (storedEphemera) {
-          const parsedEphemera = JSON.parse(storedEphemera).map(
-            (ephemera: EphemeraItemType) => ({
-              ...ephemera,
-              createdAt: new Date(ephemera.createdAt),
-              lastInteraction: new Date(ephemera.lastInteraction),
-            })
-          );
-          setEphemera(
-            parsedEphemera.filter(
-              (ephemera: EphemeraItemType) => ephemera.interestLevel > 0
-            )
-          );
-        }
+        const activeEphemera = loadActiveEphemera(user?.id);
+        setEphemera(activeEphemera);
       } catch (error) {
         console.error("Failed to load ephemeras:", error);
       } finally {
@@ -41,46 +33,33 @@ const Ephemera = () => {
       }
     };
 
-    loadEphemera();
+    loadEphemeraData();
 
     // Set up interval to decrease interest levels
     const interval = setInterval(() => {
       setEphemera((prevEphemera) => {
-        // Calculate decay rate based on configured lifetime in minutes
-        // If lifetime is 43200 minutes (30 days), we want to decrease by 100% over that period
-        const totalDecayRate = 100 / config.ephemeraLifetimeMinutes;
-
-        // Convert to per-second rate (divide by seconds in a minute)
-        const secondsInMinute = 60;
-        const perSecondDecayRate = totalDecayRate / secondsInMinute;
-
-        const updatedEphemera = prevEphemera.map((ephemera) => {
-          // Decrease interest by the calculated rate per second
-          const newInterestLevel = Math.max(
-            0,
-            ephemera.interestLevel - perSecondDecayRate
-          );
-          return {
-            ...ephemera,
-            interestLevel: newInterestLevel,
-          };
-        });
-
+        // Update interest levels based on decay rate
+        const updatedEphemera = updateEphemeraInterestLevels(prevEphemera);
+        
         // Filter out ephemeras with zero interest
         const activeEphemera = updatedEphemera.filter(
           (ephemera) => ephemera.interestLevel > 0
         );
 
-        // Save to localStorage
-        localStorage.setItem(
-          `ephemeras-${user?.id}`,
-          JSON.stringify([
-            ...activeEphemera,
-            ...updatedEphemera.filter(
-              (ephemera) => ephemera.interestLevel <= 0
-            ),
-          ])
+        // Get buried ephemeras
+        const buriedEphemera = loadBuriedEphemera(user?.id);
+        
+        // Add newly buried ephemeras to the buried list
+        const newlyBuried = updatedEphemera.filter(
+          (ephemera) => ephemera.interestLevel <= 0
         );
+        
+        // Save all ephemeras to localStorage
+        saveEphemeraItems(user?.id, [
+          ...activeEphemera,
+          ...buriedEphemera,
+          ...newlyBuried
+        ]);
 
         return activeEphemera;
       });
@@ -90,20 +69,15 @@ const Ephemera = () => {
   }, [user?.id]);
 
   const handleCreateEphemera = (content: string) => {
-    const newEphemera: EphemeraItemType = {
-      id: crypto.randomUUID(),
-      content,
-      createdAt: new Date(),
-      lastInteraction: new Date(),
-      interestLevel: 100,
-    };
+    const newEphemera = createEphemeraItem(content);
 
     setEphemera((prevEphemera) => {
       const updatedEphemera = [...prevEphemera, newEphemera];
-      localStorage.setItem(
-        `ephemeras-${user?.id}`,
-        JSON.stringify(updatedEphemera)
-      );
+      // Get buried ephemeras
+      const buriedEphemera = loadBuriedEphemera(user?.id);
+      
+      // Save all ephemeras to localStorage
+      saveEphemeraItems(user?.id, [...updatedEphemera, ...buriedEphemera]);
       return updatedEphemera;
     });
 
@@ -115,39 +89,15 @@ const Ephemera = () => {
 
   const handleInteract = (id: string) => {
     setEphemera((prevEphemera) => {
-      const updatedEphemera = prevEphemera.map((ephemera) => {
-        if (ephemera.id === id) {
-          return {
-            ...ephemera,
-            interestLevel: 100,
-            lastInteraction: new Date(),
-          };
-        }
-        return ephemera;
-      });
-
+      // Refresh the interest level of the ephemera
+      const updatedEphemera = refreshEphemeraItem(prevEphemera, id);
+      
       // Get buried ephemeras
-      const storedEphemera = localStorage.getItem(`ephemeras-${user?.id}`);
-      let buriedEphemera: EphemeraItemType[] = [];
-      if (storedEphemera) {
-        const parsedEphemera = JSON.parse(storedEphemera).map(
-          (ephemera: EphemeraItemType) => ({
-            ...ephemera,
-            createdAt: new Date(ephemera.createdAt),
-            lastInteraction: new Date(ephemera.lastInteraction),
-          })
-        );
-        buriedEphemera = parsedEphemera.filter(
-          (ephemera: EphemeraItemType) => ephemera.interestLevel <= 0
-        );
-      }
-
+      const buriedEphemera = loadBuriedEphemera(user?.id);
+      
       // Save all ephemeras to localStorage
-      localStorage.setItem(
-        `ephemeras-${user?.id}`,
-        JSON.stringify([...updatedEphemera, ...buriedEphemera])
-      );
-
+      saveEphemeraItems(user?.id, [...updatedEphemera, ...buriedEphemera]);
+      
       return updatedEphemera;
     });
 
@@ -194,7 +144,7 @@ const Ephemera = () => {
             <div className="w-full max-w-4xl mx-auto">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-8">
                 {ephemeras.map((ephemera) => (
-                  <EphemeraItem
+                  <EphemeraItemComponent
                     key={ephemera.id}
                     ephemera={ephemera}
                     onInteract={handleInteract}
