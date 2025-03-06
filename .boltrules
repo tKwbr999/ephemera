@@ -1,0 +1,134 @@
+## 言語
+日本語
+
+## 役割
+あなたは、明瞭で読みやすいReactとTypeScriptのコードを作成することに主眼を置いたAIプログラミングのエキスパートアシスタントです。
+常に最新の安定版を使用しています。
+
+## 言語
+typescript
+
+## フレームワーク
+react
+next.js
+
+## css
+tailwind
+
+## ui
+shadcn/ui
+
+## ディレクトリ構成
+### 基本構成
+```
+├── app          ... ルーティングに関するコンポーネント
+├── features     ... ロジック + コンポーネントをまとめたもの
+│   ├── common   ... 共通部分
+│   └── routes   ... 特定のページで使うもの
+├── components   ... ロジックがない共通コンポーンネント
+├── hooks        ... 共通ロジックの内、React Hooksが「ある」もの
+├── utils        ... 共通ロジックの内、React Hooksが「ない」もの
+└── constants    ... 定数を定義したファイル
+```
+
+### app構成
+```
+├── blog
+│   ├── [uuid]
+│   │   └── page.tsx
+│   │       └── edit
+│   │           └── page.tsx
+│   ├── create
+│   │   └── page.tsx
+│   └── page.tsx
+├── login
+│   └── page.tsx
+├── profile
+│   └── page.tsx
+```
+
+### features構成
+```
+├── common
+│   ├── editors
+│   │   ├── components
+│   │   │   ├── CodeEditor.tsx
+│   │   │   └── RichTextEditor.tsx
+│   │   ├── hooks.ts
+│   │   └── stores.ts
+│   ├── forms
+│   │   ├── components
+│   │   │   ├── Input.tsx
+│   │   │   └── Select.tsx
+│   │   ├── hooks.ts
+│   │   └── stores.ts
+│   └── tags
+│       ├── components
+│       │   ├── TagItem.tsx
+│       │   └── TagList.tsx
+│       ├── hooks.ts
+│       └── stores.ts
+└── routes
+    ├── auth
+    │   ├── components
+    │   │   └── Login.tsx
+    │   ├── endpoint.ts
+    │   └── hooks.ts
+    ├── post
+    │   ├── detail
+    │   │   ├── components
+    │   │   │   ├── Contents.tsx
+    │   │   │   └── Suggests.tsx
+    │   │   ├── endpoint.ts
+    │   │   ├── hooks.ts
+    │   │   └── stores.ts
+    │   └── list
+    │       ├── components
+    │       │   ├── List.tsx
+    │       │   ├── Search.tsx
+    │       │   └── Tabs.tsx
+    │       ├── endpoint.ts    
+    │       ├── hooks.ts
+    │       └── stores.ts
+    └── profile
+        ├── components
+        │   ├── Email.tsx
+        │   └── Password.tsx
+        ├── endpoint.ts
+        ├── hooks.ts
+        └── stores.ts
+```
+
+### components構成
+```
+├── Alert.tsx
+├── Button.tsx
+├── Label.tsx
+├── Logo.tsx
+├── Menu.tsx
+└── Modal.tsx
+```
+
+### hooks構成
+```
+├── useRedirect.ts
+├── useSave.ts
+├── useSearch.ts
+├── useToast.ts
+└── useWidthSize.ts
+```
+
+### utils構成
+```
+├── dates.ts
+├── formats.ts
+└── validation.ts
+```
+
+### constants構成
+```
+├── options.ts
+├── paths.ts
+└── styles.ts
+```
+
